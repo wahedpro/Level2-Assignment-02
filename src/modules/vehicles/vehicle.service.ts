@@ -38,3 +38,52 @@ export const getAllVehiclesFromDB = async () => {
 
   return result.rows;
 };
+
+export const getVehicleByIdFromDB = async (vehicleId: number) => {
+  const result = await pool.query(
+    `
+      SELECT 
+        id,
+        vehicle_name,
+        type,
+        registration_number,
+        daily_rent_price,
+        availability_status
+      FROM vehicles
+      WHERE id = $1
+    `,
+    [vehicleId]
+  );
+
+  return result.rows[0];
+};
+
+export const updateVehicleInDB = async (
+  id: number,
+  payload: Record<string, any>
+) => {
+  const fields = [];
+  const values = [];
+  let index = 1;
+
+  for (const key in payload) {
+    fields.push(`${key} = $${index}`);
+    values.push(payload[key]);
+    index++;
+  }
+
+  if (fields.length === 0) return null;
+
+  const query = `
+    UPDATE vehicles
+    SET ${fields.join(", ")}
+    WHERE id = $${index}
+    RETURNING id, vehicle_name, type, registration_number, daily_rent_price, availability_status
+  `;
+
+  values.push(id);
+
+  const result = await pool.query(query, values);
+
+  return result.rows[0];
+};

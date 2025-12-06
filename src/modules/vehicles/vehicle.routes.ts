@@ -1,14 +1,19 @@
 import { Router } from "express";
 import { authMiddleware, permitAdmin } from "../../middlewares/auth.middleware";
-import { createVehicleController, getAllVehiclesController } from "./vehicle.controller";
+import { createVehicleController, getAllVehiclesController, getVehicleByIdController, updateVehicleController } from "./vehicle.controller";
 
 const router = Router();
 
-// Admin only can create vehicle
+// create vehicle by Admin
 router.post("/", authMiddleware, permitAdmin, createVehicleController);
 
-// Public
+// Get all the vehicle
 router.get("/", getAllVehiclesController);
 
+// get vehicle by ID
+router.get("/:vehicleId", getVehicleByIdController);
+
+// Update vehicle by Admin
+router.put("/:vehicleId", authMiddleware, permitAdmin, updateVehicleController);
 
 export const vehiclesRouter = router;

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../utils/response";
-import { createVehicleIntoDB, getAllVehiclesFromDB } from "./vehicle.service";
+import { createVehicleIntoDB, getAllVehiclesFromDB, getVehicleByIdFromDB, updateVehicleInDB } from "./vehicle.service";
 
 const ALLOWED_TYPES = ["car", "bike", "van", "SUV"];
 const ALLOWED_STATUS = ["available", "booked"];
@@ -75,6 +75,80 @@ export const getAllVehiclesController = async (req: Request, res: Response) => {
       successResponse("Vehicles retrieved successfully", vehicles)
     );
   } catch (err: any) {
+    return res.status(500).json(
+      errorResponse("Something went wrong", err.message)
+    );
+  }
+};
+
+export const getVehicleByIdController = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.vehicleId);
+
+    if (isNaN(id)) {
+      return res.status(400).json(
+        errorResponse("Invalid vehicle ID", "ID must be a number")
+      );
+    }
+
+    const vehicle = await getVehicleByIdFromDB(id);
+
+    if (!vehicle) {
+      return res.status(404).json(
+        errorResponse("Vehicle not found", "Not Found")
+      );
+    }
+
+    return res.status(200).json(
+      successResponse("Vehicle retrieved successfully", vehicle)
+    );
+  } catch (err: any) {
+    return res.status(500).json(
+      errorResponse("Something went wrong", err.message)
+    );
+  }
+};
+
+
+export const updateVehicleController = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.vehicleId);
+
+    if (isNaN(id)) {
+      return res.status(400).json(
+        errorResponse("Invalid vehicle ID", "ID must be a number")
+      );
+    }
+
+    const { vehicle_name, type, registration_number, daily_rent_price, availability_status } = req.body;
+
+    const payload: Record<string, any> = {};
+
+    if (vehicle_name) payload.vehicle_name = vehicle_name;
+    if (type) payload.type = type;
+    if (registration_number) payload.registration_number = registration_number;
+    if (daily_rent_price !== undefined) payload.daily_rent_price = Number(daily_rent_price);
+    if (availability_status) payload.availability_status = availability_status;
+
+    const updated = await updateVehicleInDB(id, payload);
+
+    if (!updated) {
+      return res.status(404).json(
+        errorResponse("Vehicle not found", "Not Found")
+      );
+    }
+
+    return res.status(200).json(
+      successResponse("Vehicle updated successfully", updated)
+    );
+
+  } catch (err: any) {
+    if (err.code === "23505") {
+      return res
+        .status(409)
+        .json(errorResponse("Registration number already exists", "Duplicate registration_number"));
+    }
+
     return res.status(500).json(
       errorResponse("Something went wrong", err.message)
     );
