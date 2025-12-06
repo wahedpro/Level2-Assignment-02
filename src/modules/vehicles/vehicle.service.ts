@@ -22,3 +22,19 @@ export const createVehicleIntoDB = async (payload: CreateVehicleInput) => {
 
   return result.rows[0];
 };
+
+export const getAllVehiclesFromDB = async () => {
+  const result = await pool.query(`
+    SELECT 
+      id, 
+      vehicle_name, 
+      type, 
+      registration_number, 
+      daily_rent_price, 
+      availability_status 
+    FROM vehicles
+    ORDER BY id ASC
+  `);
+
+  return result.rows;
+};

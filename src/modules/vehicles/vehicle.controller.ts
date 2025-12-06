@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../utils/response";
-import { createVehicleIntoDB } from "./vehicle.service";
+import { createVehicleIntoDB, getAllVehiclesFromDB } from "./vehicle.service";
 
 const ALLOWED_TYPES = ["car", "bike", "van", "SUV"];
 const ALLOWED_STATUS = ["available", "booked"];
@@ -58,5 +58,25 @@ export const createVehicleController = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json(errorResponse("Something went wrong", err.message));
+  }
+};
+
+export const getAllVehiclesController = async (req: Request, res: Response) => {
+  try {
+    const vehicles = await getAllVehiclesFromDB();
+
+    if (vehicles.length === 0) {
+      return res.status(200).json(
+        successResponse("No vehicles found", [])
+      );
+    }
+
+    return res.status(200).json(
+      successResponse("Vehicles retrieved successfully", vehicles)
+    );
+  } catch (err: any) {
+    return res.status(500).json(
+      errorResponse("Something went wrong", err.message)
+    );
   }
 };
