@@ -5,6 +5,8 @@ export const pool = new Pool({
 })
 
 export const initDB = async ()=>{
+
+    // User Table
     await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -16,5 +18,19 @@ export const initDB = async ()=>{
         created_at TIMESTAMP DEFAULT NOW()
         );
     `)
-    console.log("Database Connented");
+
+    // Vehicles table
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS vehicles (
+        id SERIAL PRIMARY KEY,
+        vehicle_name TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('car','bike','van','SUV')),
+        registration_number TEXT NOT NULL UNIQUE,
+        daily_rent_price NUMERIC NOT NULL,
+        availability_status TEXT NOT NULL CHECK (availability_status IN ('available','booked')),
+        created_at TIMESTAMP DEFAULT NOW()
+        );
+    `);
+
+    console.log("Database Connected & Tables Verified");
 }
