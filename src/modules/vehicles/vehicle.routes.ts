@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware, permitAdmin } from "../../middlewares/auth.middleware";
-import { createVehicleController, getAllVehiclesController, getVehicleByIdController, updateVehicleController } from "./vehicle.controller";
+import { createVehicleController, deleteVehicleController, getAllVehiclesController, getVehicleByIdController, updateVehicleController } from "./vehicle.controller";
 
 const router = Router();
 
@@ -15,5 +15,9 @@ router.get("/:vehicleId", getVehicleByIdController);
 
 // Update vehicle by Admin
 router.put("/:vehicleId", authMiddleware, permitAdmin, updateVehicleController);
+
+// Delete vehicle by admin
+router.delete("/:vehicleId", authMiddleware, permitAdmin, deleteVehicleController);
+
 
 export const vehiclesRouter = router;

@@ -87,3 +87,27 @@ export const updateVehicleInDB = async (
 
   return result.rows[0];
 };
+
+export const checkActiveBookings = async (vehicleId: number) => {
+  const result = await pool.query(
+    `
+    SELECT id FROM bookings 
+    WHERE vehicle_id = $1 AND status = 'active'
+    `,
+    [vehicleId]
+  );
+
+  return result.rows.length > 0;
+};
+
+export const deleteVehicleFromDB = async (vehicleId: number) => {
+  const result = await pool.query(
+    `
+    DELETE FROM vehicles WHERE id = $1
+    RETURNING id
+    `,
+    [vehicleId]
+  );
+
+  return result.rows[0];
+};

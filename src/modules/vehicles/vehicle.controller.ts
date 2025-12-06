@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../utils/response";
-import { createVehicleIntoDB, getAllVehiclesFromDB, getVehicleByIdFromDB, updateVehicleInDB } from "./vehicle.service";
+import { checkActiveBookings, createVehicleIntoDB, deleteVehicleFromDB, getAllVehiclesFromDB, getVehicleByIdFromDB, updateVehicleInDB } from "./vehicle.service";
 
 const ALLOWED_TYPES = ["car", "bike", "van", "SUV"];
 const ALLOWED_STATUS = ["available", "booked"];
@@ -152,5 +152,46 @@ export const updateVehicleController = async (req: Request, res: Response) => {
     return res.status(500).json(
       errorResponse("Something went wrong", err.message)
     );
+  }
+};
+
+export const deleteVehicleController = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.vehicleId);
+
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json(errorResponse("Invalid vehicle ID", "ID must be a number"));
+    }
+
+    // Check for active bookings
+    const hasActiveBookings = await checkActiveBookings(id);
+
+    if (hasActiveBookings) {
+      return res.status(400).json(
+        errorResponse(
+          "Vehicle cannot be deleted because it has active bookings",
+          "Active bookings exist"
+        )
+      );
+    }
+
+    const deleted = await deleteVehicleFromDB(id);
+
+    if (!deleted) {
+      return res
+        .status(404)
+        .json(errorResponse("Vehicle not found", "Not Found"));
+    }
+
+    return res
+      .status(200)
+      .json(successResponse("Vehicle deleted successfully", null));
+
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json(errorResponse("Something went wrong", err.message));
   }
 };
