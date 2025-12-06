@@ -185,9 +185,11 @@ export const deleteVehicleController = async (req: Request, res: Response) => {
         .json(errorResponse("Vehicle not found", "Not Found"));
     }
 
-    return res
-      .status(200)
-      .json(successResponse("Vehicle deleted successfully", null));
+    return res.status(200).json({
+      success: true,
+      message: "Vehicle deleted successfully"
+    });
+
 
   } catch (err: any) {
     return res
