@@ -88,3 +88,23 @@ export const getBookingsByCustomerDB = async (customerId: number) => {
 
   return result.rows;
 };
+
+
+export const getBookingByIdDB = async (bookingId: number) => {
+  const result = await pool.query(`
+    SELECT * FROM bookings WHERE id = $1
+  `, [bookingId]);
+
+  return result.rows[0];
+};
+
+export const updateBookingStatusDB = async (bookingId: number, status: string) => {
+  const result = await pool.query(`
+    UPDATE bookings
+    SET status = $1
+    WHERE id = $2
+    RETURNING id, customer_id, vehicle_id, rent_start_date, rent_end_date, total_price, status
+  `, [status, bookingId]);
+
+  return result.rows[0];
+};

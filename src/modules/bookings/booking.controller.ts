@@ -5,7 +5,9 @@ import {
   createBookingInDB, 
   updateVehicleStatus, 
   getBookingsByCustomerDB,
-  getAllBookingsAdminDB
+  getAllBookingsAdminDB,
+  updateBookingStatusDB,
+  getBookingByIdDB
 } from "./booking.service";
 
 export const createBookingController = async (req: Request, res: Response) => {
@@ -134,5 +136,69 @@ export const getAllBookingsController = async (req: Request, res: Response) => {
     return res.status(500).json(
       errorResponse("Something went wrong", err.message)
     );
+  }
+};
+
+export const updateBookingController = async (req: Request, res: Response) => {
+  try {
+    const bookingId = Number(req.params.bookingId);
+    const { status } = req.body;
+    const requester = req.user;
+
+    if (isNaN(bookingId)) {
+      return res.status(400).json(errorResponse("Invalid booking ID", "ID must be a number"));
+    }
+
+    if (!status) {
+      return res.status(400).json(errorResponse("Status is required", "Missing field"));
+    }
+
+    // Fetch booking
+    const booking = await getBookingByIdDB(bookingId);
+
+    if (!booking) {
+      return res.status(404).json(errorResponse("Booking not found", "Not Found"));
+    }
+
+    // ---------------- CUSTOMER CANCEL LOGIC ----------------
+    if (status === "cancelled") {
+      if (requester!.role !== "admin" && requester!.id !== booking.customer_id) {
+        return res.status(403).json(errorResponse("Unauthorized", "You cannot cancel this booking"));
+      }
+
+      const updated = await updateBookingStatusDB(bookingId, "cancelled");
+
+      // Vehicle available again
+      await updateVehicleStatus(booking.vehicle_id, "available");
+
+      return res.status(200).json(
+        successResponse("Booking cancelled successfully", updated)
+      );
+    }
+
+    // ---------------- ADMIN MARK RETURNED ----------------
+    if (status === "returned") {
+      if (requester!.role !== "admin") {
+        return res.status(403).json(errorResponse("Unauthorized", "Only admin can mark returned"));
+      }
+
+      const updated = await updateBookingStatusDB(bookingId, "returned");
+
+      // Vehicle available again
+      await updateVehicleStatus(booking.vehicle_id, "available");
+
+      return res.status(200).json(
+        successResponse("Booking marked as returned. Vehicle is now available", {
+          ...updated,
+          vehicle: { availability_status: "available" }
+        })
+      );
+    }
+
+    // Invalid status
+    return res.status(400).json(errorResponse("Invalid status", "Allowed: cancelled, returned"));
+
+  } catch (err: any) {
+    return res.status(500).json(errorResponse("Something went wrong", err.message));
   }
 };
