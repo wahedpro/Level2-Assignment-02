@@ -103,7 +103,7 @@ src/
 
 ## 1️⃣ Clone the repository
 ```
-git clone https://github.com/wahedpro/vehicle-rental-system.git
+git clone https://github.com/wahedpro/Level2-Assignment-02.git
 cd vehicle-rental-system
 ```
 
