@@ -51,6 +51,4 @@ await pool.query(`
           FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
     );
 `);
-
-    console.log("Database Connected & Tables Verified");
 }
