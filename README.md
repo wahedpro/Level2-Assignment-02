@@ -5,13 +5,7 @@ Built with **Node.js, TypeScript, Express, PostgreSQL**, and fully secured using
 ---
 
 ## 🌐 Live API URL  
-(Place your deployment link here)  
-👉 https://your-deployment-url.com  
-
----
-
-## 📦 GitHub Repository  
-(Place your GitHub repo link here)
+👉 https://vehicle-rental-system-rho.vercel.app
 
 ---
 
@@ -79,7 +73,7 @@ Runs every **1 minute** using `node-cron`.
 | Database | PostgreSQL |
 | Auth | JWT + bcrypt |
 | Scheduler | node-cron |
-| Hosting | Render / Vercel / Railway / NeonDB |
+| Hosting | Vercel |
 
 ---
 
@@ -109,7 +103,7 @@ src/
 
 ## 1️⃣ Clone the repository
 ```
-git clone https://github.com/your-username/vehicle-rental-system.git
+git clone https://github.com/wahedpro/vehicle-rental-system.git
 cd vehicle-rental-system
 ```
 
@@ -162,13 +156,3 @@ npm start
 - `POST /api/v1/bookings`  
 - `GET /api/v1/bookings`  
 - `PUT /api/v1/bookings/:id`  
-
----
-
-# 🎯 Final Deliverables (As Required by Assignment)
-
-### ✔ 1. GitHub Repository Link  
-Include your repo URL in submission.
-
-### ✔ 2. Live Deployment Link  
-Deploy using Render / Railway / Vercel and provide the live API link.
