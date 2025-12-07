@@ -3,7 +3,9 @@ import { errorResponse, successResponse } from "../../utils/response";
 import { 
   getVehicleById, 
   createBookingInDB, 
-  updateVehicleStatus 
+  updateVehicleStatus, 
+  getBookingsByCustomerDB,
+  getAllBookingsAdminDB
 } from "./booking.service";
 
 export const createBookingController = async (req: Request, res: Response) => {
@@ -68,6 +70,65 @@ export const createBookingController = async (req: Request, res: Response) => {
         }
       }
     });
+
+  } catch (err: any) {
+    return res.status(500).json(
+      errorResponse("Something went wrong", err.message)
+    );
+  }
+};
+
+export const getAllBookingsController = async (req: Request, res: Response) => {
+  try {
+    const user = req.user; // logged-in user
+
+    // ---------------- Admin View ----------------
+    if (user?.role === "admin") {
+      const rows = await getAllBookingsAdminDB();
+
+      const formatted = rows.map((b) => ({
+        id: b.id,
+        customer_id: b.customer_id,
+        vehicle_id: b.vehicle_id,
+        rent_start_date: b.rent_start_date,
+        rent_end_date: b.rent_end_date,
+        total_price: b.total_price,
+        status: b.status,
+        customer: {
+          name: b.customer_name,
+          email: b.customer_email,
+        },
+        vehicle: {
+          vehicle_name: b.vehicle_name,
+          registration_number: b.registration_number,
+        }
+      }));
+
+      return res.status(200).json(
+        successResponse("Bookings retrieved successfully", formatted)
+      );
+    }
+
+    // ---------------- Customer View ----------------
+    const rows = await getBookingsByCustomerDB(user!.id);
+
+    const formatted = rows.map((b) => ({
+      id: b.id,
+      vehicle_id: b.vehicle_id,
+      rent_start_date: b.rent_start_date,
+      rent_end_date: b.rent_end_date,
+      total_price: b.total_price,
+      status: b.status,
+      vehicle: {
+        vehicle_name: b.vehicle_name,
+        registration_number: b.registration_number,
+        type: b.type
+      }
+    }));
+
+    return res.status(200).json(
+      successResponse("Your bookings retrieved successfully", formatted)
+    );
 
   } catch (err: any) {
     return res.status(500).json(
