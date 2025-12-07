@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { pool } from "../../database/db";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "myjwtsecret123";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 const getUserByEmail = async (email: string) => {
   const result = await pool.query(
@@ -11,7 +11,6 @@ const getUserByEmail = async (email: string) => {
     `,
     [email.toLowerCase()]
   );
-
   return result.rows[0];
 };
 

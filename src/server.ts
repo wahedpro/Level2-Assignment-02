@@ -6,9 +6,11 @@ import { vehiclesRouter } from "./modules/vehicles/vehicle.routes";
 import { usersRouter } from "./modules/users/user.routes";
 import { bookingsRouter } from "./modules/bookings/booking.routes";
 import { autoReturnExpiredBookings } from "./modules/bookings/autoReturn.service";
+import dotenv from "dotenv";
 
 const app = express();
 app.use(express.json());
+dotenv.config();
 
 initDB();
 

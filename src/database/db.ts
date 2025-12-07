@@ -1,8 +1,11 @@
 import { Pool } from "pg";
+import dotenv from "dotenv";
+
+dotenv.config(); 
 
 export const pool = new Pool({
-    connectionString : 'postgresql://neondb_owner:npg_LNYOn6ZDC8of@ep-billowing-union-a86c1sly-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require'
-})
+  connectionString: process.env.DATABASE_URL,
+});
 
 export const initDB = async ()=>{
 
@@ -33,22 +36,20 @@ export const initDB = async ()=>{
     `);
 
     // Bookings table
-await pool.query(`
-    CREATE TABLE IF NOT EXISTS bookings (
-        id SERIAL PRIMARY KEY,
-        customer_id INTEGER NOT NULL,
-        vehicle_id INTEGER NOT NULL,
-        rent_start_date DATE NOT NULL,
-        rent_end_date DATE NOT NULL,
-        total_price NUMERIC NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('active','cancelled','returned')),
-        created_at TIMESTAMP DEFAULT NOW(),
-
-        CONSTRAINT fk_customer
-          FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE CASCADE,
-
-        CONSTRAINT fk_vehicle
-          FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
-    );
-`);
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS bookings (
+            id SERIAL PRIMARY KEY,
+            customer_id INTEGER NOT NULL,
+            vehicle_id INTEGER NOT NULL,
+            rent_start_date DATE NOT NULL,
+            rent_end_date DATE NOT NULL,
+            total_price NUMERIC NOT NULL,
+            status TEXT NOT NULL CHECK (status IN ('active','cancelled','returned')),
+            created_at TIMESTAMP DEFAULT NOW(),
+            CONSTRAINT fk_customer
+            FOREIGN KEY(customer_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_vehicle
+            FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+        );
+    `);
 }
